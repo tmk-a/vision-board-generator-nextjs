@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id                String    @id @unique
+  conversations     Conversations[]
+  generatedVisions  GeneratedVisions[]
+
+  // add user info(name, photo, etc) later
+  name            String
+
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+
+  @@map("user_profiles")
+}
+
+model Conversations {
+  id        String  @id @default(uuid())
+  user      User    @relation(fields: [user_id], references: [id])
+  user_id   String   
+  title     String
+
+  turns     ConversationTurns[]
+  visions   GeneratedVisions[]
+
+  created_at    DateTime    @default(now())
+  updated_at    DateTime    @updatedAt
+
+  @@map("conversations")
+}
+
+model ConversationTurns {
+  id                String     @id @default(uuid())
+  conversation      Conversations   @relation(fields: [conversation_id], references: [id])
+  conversation_id   String
+  turn_number       Int
+  question_text     String
+  user_answer       String
+  created_at        DateTime   @default(now())
+
+  @@map("conversation_turns")
+  @@unique([conversation_id, turn_number])
+}
+
+model GeneratedVisions {
+  id                   String     @id @default(uuid())
+  conversation         Conversations   @relation(fields: [conversation_id], references: [id])
+  conversation_id      String
+  user                 User   @relation(fields: [user_id], references: [id])
+  user_id              String
+  theme_word           String?
+  generated_image_url  String?
+  generated_text       String?
+  created_at           DateTime    @default(now())
+
+  @@map("generated_visions")
+}
