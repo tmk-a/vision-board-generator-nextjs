@@ -59,16 +59,14 @@ export async function signup(formData: FormData) {
     throw new Error(errorMessages);
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword(
-    validatedData.data
-  );
+  const { data, error } = await supabase.auth.signUp(validatedData.data);
 
   if (error) {
     throw new Error(error.message);
   }
 
   if (data.user && !data.user.email_confirmed_at) {
-    throw new Error("Please check your email to confirm your account");
+    redirect("/login?message=Please check your email to confirm your account");
   }
 
   revalidatePath("/", "layout");
