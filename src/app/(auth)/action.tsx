@@ -2,23 +2,35 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
+import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+  // Zod schema
+  const loginSchema = z.object({
+    email: z.string().email("Email address is not in a valid format."),
+    password: z.string().min(8, "Password must be at least 8 characters long."),
+  });
 
-  const { error } = await supabase.auth.signInWithPassword(data);
+  // check form data by schema
+  const validatedData = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!validatedData.success) {
+    const errorMessages = validatedData.error.issues
+      .map((issue) => issue.message)
+      .join(", ");
+    throw new Error(errorMessages);
+  }
+
+  const { error } = await supabase.auth.signInWithPassword(validatedData.data);
 
   if (error) {
-    redirect("/error");
+    throw new Error(error.message);
   }
 
   revalidatePath("/", "layout");
@@ -28,22 +40,35 @@ export async function login(formData: FormData) {
 export async function signup(formData: FormData) {
   const supabase = await createClient();
 
-  // type-casting here for convenience
-  // in practice, you should validate your inputs
-  const data = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+  // Zod schema
+  const signupSchema = z.object({
+    email: z.string().email("Email address is not in a valid format."),
+    password: z.string().min(8, "Password must be at least 8 characters long."),
+  });
 
-  const { data: authData, error } = await supabase.auth.signUp(data);
+  // check form data by schema
+  const validatedData = signupSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
 
-  if (error) {
-    console.error("Signup error:", error);
-    redirect(`/error?message=${encodeURIComponent(error.message)}`);
+  if (!validatedData.success) {
+    const errorMessages = validatedData.error.issues
+      .map((issue) => issue.message)
+      .join(", ");
+    throw new Error(errorMessages);
   }
 
-  if (authData.user && !authData.user.email_confirmed_at) {
-    redirect("/login?message=Please check your email to confirm your account");
+  const { data, error } = await supabase.auth.signInWithPassword(
+    validatedData.data
+  );
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (data.user && !data.user.email_confirmed_at) {
+    throw new Error("Please check your email to confirm your account");
   }
 
   revalidatePath("/", "layout");
