@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
+import { createUserProfile } from "@/services/authService";
 
 export async function login(formData: FormData) {
   const supabase = await createClient();
@@ -63,6 +64,19 @@ export async function signup(formData: FormData) {
 
   if (error) {
     throw new Error(error.message);
+  }
+
+  // create user profile in supabase
+  if (data.user) {
+    try {
+      const name = formData.get("username") as string;
+      await createUserProfile(data.user.id, name);
+    } catch (profileError) {
+      console.error(profileError);
+      throw new Error(
+        "Your account was created, but an error occurred while registering your profile."
+      );
+    }
   }
 
   if (data.user && !data.user.email_confirmed_at) {
