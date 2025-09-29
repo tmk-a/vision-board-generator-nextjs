@@ -92,3 +92,26 @@ export async function logout() {
   await supabase.auth.signOut();
   return redirect("/login");
 }
+
+export const getAuthenticatedUser = async () => {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
+  return user;
+};
+
+export const getRequiredUserId = async (): Promise<string> => {
+  const user = await getAuthenticatedUser();
+
+  if (!user) {
+    throw new Error("User not authenticated.");
+  }
+  return user.id;
+};
