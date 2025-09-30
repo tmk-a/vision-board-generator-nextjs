@@ -1,0 +1,22 @@
+export interface ConversationTurnData {
+  id: string;
+  conversation_id: string;
+  turn_number: number;
+  question_text: string;
+  user_answer: string;
+  created_at: Date;
+}
+
+export interface ConversationInput {
+  questionNo: number;
+  question: string;
+  answer: string;
+}
+
+export interface ConversationData {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+  user_id: string;
+  title: string;
+}
