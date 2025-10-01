@@ -20,3 +20,9 @@ export interface ConversationData {
   user_id: string;
   title: string;
 }
+
+export interface BasicQuestionsData {
+  id: number;
+  question: string;
+  options: string[];
+}
