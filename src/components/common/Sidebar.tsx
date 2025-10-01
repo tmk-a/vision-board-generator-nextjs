@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { logout } from "@/app/(auth)/action";
+import { Plus } from "lucide-react";
 
 interface AppSidebarProps {
   conversations: ConversationData[];
@@ -34,19 +35,29 @@ const AppSidebar = ({ conversations }: AppSidebarProps) => {
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {conversations.length === 0 ? (
-                <span>Not found</span>
-              ) : (
-                conversations.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={`/${item.id}`}>
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))
-              )}
+              <SidebarMenuButton asChild>
+                <Button asChild>
+                  <Link href={"/chat/new"}>
+                    <Plus />
+                    Create New
+                  </Link>
+                </Button>
+              </SidebarMenuButton>
+              <div className="flex flex-col w-full h-full p-4 overflow-y-auto">
+                {conversations.length === 0 ? (
+                  <span>Not found</span>
+                ) : (
+                  conversations.map((item) => (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton asChild>
+                        <Link href={`/chat/${item.id}`}>
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))
+                )}
+              </div>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -57,6 +68,7 @@ const AppSidebar = ({ conversations }: AppSidebarProps) => {
         </SidebarGroup>
         <Button onClick={logout}>Logout</Button>
       </SidebarContent>
+      {/* TODO: add footer */}
     </Sidebar>
   );
 };
