@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "question": "Recent experiences that stayed on your mind for a while (happy, sad, uneasy—any emotion is fine)",
+    "options": [
+      "I was recognized or praised by someone",
+      "Things didn’t go as I expected",
+      "Someone was kind to me",
+      "I could express my opinion / I couldn’t express my opinion",
+      "I tried something new",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 2,
+    "question": "Moments when you feel calm, relaxed, or safe",
+    "options": [
+      "Being alone in a quiet place",
+      "Being with people I trust",
+      "Being in nature",
+      "Being able to do things at my own pace",
+      "Being surrounded by things I like",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 3,
+    "question": "Moments when you feel discomfort or unease",
+    "options": [
+      "When my opinion isn’t heard",
+      "When someone imposes their pace on me",
+      "When I feel something is unfair",
+      "When no one takes responsibility",
+      "When interactions feel superficial",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Experiences where you felt your thoughts or intentions reached someone or had an effect",
+    "options": [
+      "My effort was recognized",
+      "Someone understood my opinion",
+      "Someone was happy because of what I did",
+      "I worked well with a team or group",
+      "I felt a sense of achievement, even in small things",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 5,
+    "question": "When someone thanked you, why do you think they were happy?",
+    "options": [
+      "I acted with awareness of their feelings",
+      "I naturally did something I could do",
+      "I helped solve a problem they had",
+      "I reduced their burden",
+      "I helped create a fun or enjoyable moment together",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 6,
+    "question": "Things you were passionate about as a child or student",
+    "options": [
+      "Physical activities (sports, play, etc.)",
+      "Creative activities (drawing, writing, music, etc.)",
+      "Doing things with a group (clubs, events, etc.)",
+      "Competitions or challenges (games, contests, etc.)",
+      "Exploration or learning (books, research, experiments, etc.)",
+      "Other (please describe)"
+    ]
+  },
+  {
+    "id": 7,
+    "question": "Looking ahead, what kind of self would you not want to become?",
+    "options": [
+      "Someone no one needs",
+      "Someone unable to express their feelings",
+      "Someone who gives up what they love",
+      "Someone disconnected from people or society",
+      "Someone who harms their health or mental well-being",
+      "Other (please describe)"
+    ]
+  }
+]

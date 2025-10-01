@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { ConversationInput } from "@/types";
+import { ConversationInput, BasicQuestionsData } from "@/types";
+import basicQuestions from "@/data/basicQuestions.json";
 
 export const getConversations = async (userId: string) => {
   try {
@@ -77,4 +78,8 @@ export const addChatHistory = async (
       nextTurnNumber: turnNumber,
     };
   });
+};
+
+export const getBasicQuestions = (): BasicQuestionsData[] => {
+  return basicQuestions as BasicQuestionsData[];
 };
