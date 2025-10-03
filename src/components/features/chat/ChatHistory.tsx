@@ -1,3 +1,4 @@
+import React from "react";
 import { ConversationTurnData } from "@/types";
 import {
   ChatBubble,
@@ -15,8 +16,8 @@ export const ChatHistory = ({ history }: ChatHistoryProps) => {
   return (
     <ChatMessageList>
       {history.map((chat) => (
-        <>
-          <ChatBubble key={chat.id} variant={"received"}>
+        <React.Fragment key={chat.id || chat.question_text}>
+          <ChatBubble variant={"received"}>
             <ChatBubbleMessage>{chat.question_text}</ChatBubbleMessage>
           </ChatBubble>
           <ChatBubble variant={"sent"}>
@@ -29,7 +30,7 @@ export const ChatHistory = ({ history }: ChatHistoryProps) => {
               )}
             </ChatBubbleMessage>
           </ChatBubble>
-        </>
+        </React.Fragment>
       ))}
     </ChatMessageList>
   );
