@@ -20,6 +20,8 @@ interface ChatWindowProps {
   question: BasicQuestionsData;
   answer: string;
   setAnswer: (value: string) => void;
+  isGenerated: boolean;
+  setIsGenerated: (value: boolean) => void;
   loading: boolean;
   handleNextQuestion: (e: React.FormEvent) => void;
   handleBackQuestion: (e: React.FormEvent) => void;
@@ -34,6 +36,8 @@ export const ChatWindow = ({
   question,
   answer,
   setAnswer,
+  isGenerated,
+  setIsGenerated,
   loading,
   handleNextQuestion,
   handleBackQuestion,
@@ -45,7 +49,7 @@ export const ChatWindow = ({
   const isOtherSelected = radioValue === OTHER_OPTION_VALUE;
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && questionNo < LENGTH_BASIC_QUESTION) {
       const initialRadioValue = question.options.includes(answer)
         ? answer
         : question.options.includes(OTHER_OPTION_VALUE)
@@ -73,6 +77,10 @@ export const ChatWindow = ({
     }
   };
 
+  const handleMoveToDesign = () => {
+    setIsGenerated(true);
+  };
+
   return (
     <Dialog
       onOpenChange={(state) => {
@@ -84,61 +92,81 @@ export const ChatWindow = ({
       <DialogTrigger asChild>
         <Button className="text-lg px-3">Answer Next Question</Button>
       </DialogTrigger>
-      <form onSubmit={handleSubmit}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{question.question}</DialogTitle>
-          </DialogHeader>
-          <RadioGroup value={radioValue} onValueChange={handleRadioChange}>
-            {question.options.map((option, index) => (
-              <div
-                key={`${question.id}-${index}`}
-                className="flex items-center gap-3"
+      <DialogContent>
+        {questionNo === LENGTH_BASIC_QUESTION && !isGenerated && (
+          <div>
+            <Button onClick={handleMoveToDesign}>Generate</Button>
+            <Button disabled>Answer More</Button>
+          </div>
+        )}
+        {questionNo < LENGTH_BASIC_QUESTION && (
+          <form>
+            <DialogHeader>
+              <p>
+                {questionNo + 1}/{LENGTH_BASIC_QUESTION}
+              </p>
+              <DialogTitle>{question.question}</DialogTitle>
+            </DialogHeader>
+            <RadioGroup value={radioValue} onValueChange={handleRadioChange}>
+              {question.options.map((option, index) => (
+                <div
+                  key={`${question.id}-${index}`}
+                  className="flex items-center gap-3"
+                >
+                  <RadioGroupItem
+                    value={`${option}`}
+                    id={`${question.id}-${index}`}
+                  />
+                  <Label htmlFor={`${question.id}-${index}`}>{option}</Label>
+                </div>
+              ))}
+            </RadioGroup>
+            <Textarea
+              value={isOtherSelected ? answer : ""}
+              onChange={handleTextareaChange}
+              placeholder={
+                isOtherSelected
+                  ? "Please provide a specific answer..."
+                  : "You can enter this by selecting the radio button 'Other'"
+              }
+              aria-invalid={!!error && !answer}
+              disabled={!isOtherSelected}
+            ></Textarea>
+            {/* TODO: add error component*/}
+            {/* {error && <ErrorArea>{error}</ErrorArea>} */}
+            <DialogFooter>
+              <Button
+                type="button"
+                onClick={handleBackQuestion}
+                disabled={questionNo === 0}
               >
-                <RadioGroupItem
-                  value={`${option}`}
-                  id={`${question.id}-${index}`}
-                />
-                <Label htmlFor={`${question.id}-${index}`}>{option}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-          <Textarea
-            value={isOtherSelected ? answer : ""}
-            onChange={handleTextareaChange}
-            placeholder={
-              isOtherSelected
-                ? "Please provide a specific answer..."
-                : "You can enter this by selecting the radio button 'Other'"
-            }
-            aria-invalid={!!error && !answer}
-            disabled={!isOtherSelected}
-          ></Textarea>
-          {/* TODO: add error component*/}
-          {/* {error && <ErrorArea>{error}</ErrorArea>} */}
-          <DialogFooter>
-            <Button
-              type="button"
-              onClick={handleBackQuestion}
-              disabled={questionNo === 0}
-            >
-              Back
-            </Button>
-            {questionNo >= LENGTH_BASIC_QUESTION - 1 ? (
-              <Button type="submit" disabled={loading} onClick={handleSubmit}>
-                {loading ? "Generating..." : "Generate"}
+                Back
               </Button>
-            ) : null}
-            <Button
-              type="button"
-              onClick={handleNextQuestion}
-              disabled={questionNo === 6}
-            >
-              Next
+              {questionNo > LENGTH_BASIC_QUESTION ? (
+                <Button
+                  type="button"
+                  onClick={() => setIsGenerated(true)}
+                ></Button>
+              ) : null}
+              <Button
+                type="button"
+                onClick={handleNextQuestion}
+                // disabled={questionNo === 6}
+              >
+                Next
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+        {isGenerated && (
+          <form onSubmit={handleSubmit}>
+            {/* about design */}
+            <Button type="submit" disabled={loading} onClick={handleSubmit}>
+              {loading ? "Generating..." : "Generate"}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </form>
+          </form>
+        )}
+      </DialogContent>
     </Dialog>
   );
 };

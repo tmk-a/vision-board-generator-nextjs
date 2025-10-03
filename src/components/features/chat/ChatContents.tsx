@@ -27,8 +27,22 @@ export const ChatContent = ({
   >([]);
   const [loading, setLoading] = useState(false);
 
+  const [isGenerated, setIsGenerated] = useState(false);
+
   const basicQuestions = getBasicQuestions();
   const currentQuestionInfo = basicQuestions[questionNo];
+
+  const addAnswerToConversationInputs = () => {
+    setConversationInputs([
+      ...conversationInputs,
+      { questionNo, question: currentQuestionInfo.question, answer },
+    ]);
+
+    setAnswer("");
+
+    const nextQuestionNo = questionNo + 1;
+    setQuestionNo(nextQuestionNo);
+  };
 
   const handleBackQuestion = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,34 +56,18 @@ export const ChatContent = ({
 
   const handleNextQuestion = (e: React.FormEvent) => {
     e.preventDefault();
-    setConversationInputs([
-      ...conversationInputs,
-      { questionNo, question: currentQuestionInfo.question, answer },
-    ]);
-
-    setAnswer("");
-
-    const nextQuestionNo = questionNo + 1;
-    setQuestionNo(nextQuestionNo);
+    addAnswerToConversationInputs();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setConversationInputs([
-      ...conversationInputs,
-      { questionNo, question: currentQuestionInfo.question, answer },
-    ]);
-
-    const finalHistory = [
-      ...conversationInputs,
-      { questionNo, question: currentQuestionInfo.question, answer },
-    ];
 
     let result = null;
     try {
-      result = await submitChat(finalHistory, conversationId);
+      result = await submitChat(conversationInputs, conversationId);
       setQuestionNo((prev) => prev + 1);
+      setIsGenerated(false);
     } catch (error) {
       console.error("Fetch Error:", error);
     } finally {
@@ -90,6 +88,8 @@ export const ChatContent = ({
         question={currentQuestionInfo}
         answer={answer}
         setAnswer={setAnswer}
+        isGenerated={isGenerated}
+        setIsGenerated={setIsGenerated}
         loading={loading}
         handleSubmit={handleSubmit}
         handleNextQuestion={handleNextQuestion}
