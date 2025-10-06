@@ -13,19 +13,20 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { BasicQuestionsData } from "@/types";
+import { BasicQuestionsData, DesignPreferences } from "@/types";
+import { DesignForm } from "./DesignForm";
 
 interface ChatWindowProps {
   questionNo: number;
   question: BasicQuestionsData;
   answer: string;
   setAnswer: (value: string) => void;
-  isGenerated: boolean;
-  setIsGenerated: (value: boolean) => void;
+  isSaved: boolean;
+  setIsSaved: (value: boolean) => void;
   loading: boolean;
   handleNextQuestion: (e: React.FormEvent) => void;
   handleBackQuestion: (e: React.FormEvent) => void;
-  handleSubmit: (e: React.FormEvent) => void;
+  handleGenerateVision: (preferences: DesignPreferences) => void;
 }
 
 const OTHER_OPTION_VALUE = "Other (please describe)";
@@ -36,12 +37,12 @@ export const ChatWindow = ({
   question,
   answer,
   setAnswer,
-  isGenerated,
-  setIsGenerated,
+  isSaved,
+  setIsSaved,
   loading,
   handleNextQuestion,
   handleBackQuestion,
-  handleSubmit,
+  handleGenerateVision,
 }: ChatWindowProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState("");
@@ -78,7 +79,7 @@ export const ChatWindow = ({
   };
 
   const handleMoveToDesign = () => {
-    setIsGenerated(true);
+    setIsSaved(true);
   };
 
   return (
@@ -93,10 +94,15 @@ export const ChatWindow = ({
         <Button className="text-lg px-3">Answer Next Question</Button>
       </DialogTrigger>
       <DialogContent>
-        {questionNo === LENGTH_BASIC_QUESTION && !isGenerated && (
+        {questionNo === LENGTH_BASIC_QUESTION && !isSaved && (
           <div>
-            <Button onClick={handleMoveToDesign}>Generate</Button>
-            <Button disabled>Answer More</Button>
+            <DialogHeader>
+              <DialogTitle>Completed to answer basic questions!</DialogTitle>
+            </DialogHeader>
+            <DialogFooter className="flex flex-col">
+              <Button onClick={handleMoveToDesign}>Decide Design</Button>
+              <Button disabled>Answer More Questions</Button>
+            </DialogFooter>
           </div>
         )}
         {questionNo < LENGTH_BASIC_QUESTION && (
@@ -143,28 +149,19 @@ export const ChatWindow = ({
                 Back
               </Button>
               {questionNo > LENGTH_BASIC_QUESTION ? (
-                <Button
-                  type="button"
-                  onClick={() => setIsGenerated(true)}
-                ></Button>
+                <Button type="button" onClick={() => setIsSaved(true)}></Button>
               ) : null}
-              <Button
-                type="button"
-                onClick={handleNextQuestion}
-                // disabled={questionNo === 6}
-              >
+              <Button type="button" onClick={handleNextQuestion}>
                 Next
               </Button>
             </DialogFooter>
           </form>
         )}
-        {isGenerated && (
-          <form onSubmit={handleSubmit}>
-            {/* about design */}
-            <Button type="submit" disabled={loading} onClick={handleSubmit}>
-              {loading ? "Generating..." : "Generate"}
-            </Button>
-          </form>
+        {isSaved && (
+          <DesignForm
+            handleGenerateVision={handleGenerateVision}
+            loading={loading}
+          />
         )}
       </DialogContent>
     </Dialog>

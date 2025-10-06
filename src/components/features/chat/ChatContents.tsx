@@ -4,15 +4,22 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChatWindow } from "./ChatWindow";
 import { ChatHistory } from "./ChatHistory";
-import { ConversationTurnData, ConversationInput } from "@/types";
+import {
+  ConversationTurnData,
+  ConversationInput,
+  DesignPreferences,
+} from "@/types";
 import { submitChat } from "@/app/(main)/chat/action";
 import { getBasicQuestions } from "@/services/chatService";
+import { generateVision } from "@/app/(main)/vision/action";
 
 interface ChatContentProps {
   conversationId: string;
   initialHistory?: ConversationTurnData[];
   initialQuestionNo?: number;
 }
+
+const LENGTH_BASIC_QUESTION = 7;
 
 export const ChatContent = ({
   conversationId,
@@ -27,7 +34,7 @@ export const ChatContent = ({
   >([]);
   const [loading, setLoading] = useState(false);
 
-  const [isGenerated, setIsGenerated] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   const basicQuestions = getBasicQuestions();
   const currentQuestionInfo = basicQuestions[questionNo];
@@ -39,9 +46,6 @@ export const ChatContent = ({
     ]);
 
     setAnswer("");
-
-    const nextQuestionNo = questionNo + 1;
-    setQuestionNo(nextQuestionNo);
   };
 
   const handleBackQuestion = (e: React.FormEvent) => {
@@ -54,29 +58,43 @@ export const ChatContent = ({
     setAnswer(conversationInputs[prevQuestionNo].answer);
   };
 
-  const handleNextQuestion = (e: React.FormEvent) => {
+  const handleNextQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
     addAnswerToConversationInputs();
-  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    let result = null;
-    try {
-      result = await submitChat(conversationInputs, conversationId);
-      setQuestionNo((prev) => prev + 1);
-      setIsGenerated(false);
-    } catch (error) {
-      console.error("Fetch Error:", error);
-    } finally {
-      setLoading(false);
+    if (questionNo === LENGTH_BASIC_QUESTION - 1) {
+      setLoading(true);
+      try {
+        await submitChat(conversationInputs, conversationId);
+        setIsSaved(true);
+      } catch (error) {
+        console.error("Failed to save answers:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    if (result) {
-      router.refresh();
-      router.push(`/chat/${result.conversationId}`);
+    setQuestionNo((prev) => prev + 1);
+  };
+
+  const handleGenerateVision = async (preferences: DesignPreferences) => {
+    setLoading(true);
+
+    try {
+      const result = await generateVision({
+        conversationId,
+        designPreferences: preferences,
+      });
+
+      if (result.success) {
+        router.refresh();
+        router.push(`/dashboard`);
+      }
+    } catch (error) {
+      console.error("Vision generation failed:", error);
+      alert("Vision generation failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,10 +106,10 @@ export const ChatContent = ({
         question={currentQuestionInfo}
         answer={answer}
         setAnswer={setAnswer}
-        isGenerated={isGenerated}
-        setIsGenerated={setIsGenerated}
+        isSaved={isSaved}
+        setIsSaved={setIsSaved}
         loading={loading}
-        handleSubmit={handleSubmit}
+        handleGenerateVision={handleGenerateVision}
         handleNextQuestion={handleNextQuestion}
         handleBackQuestion={handleBackQuestion}
       />
