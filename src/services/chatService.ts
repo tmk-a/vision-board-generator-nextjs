@@ -14,7 +14,7 @@ export const getConversations = async (userId: string) => {
   }
 };
 
-export const getChatHistory = async (conversationId: string) => {
+export const getConversationTurns = async (conversationId: string) => {
   try {
     const chatHistory = await prisma.conversationTurns.findMany({
       where: { conversation_id: conversationId },
@@ -32,7 +32,6 @@ export const addChatHistory = async (
   chatHistory: ConversationInput[]
 ) => {
   return await prisma.$transaction(async (tx) => {
-    // const history = chatHistory;
     let currentConversationId = conversationId;
     let turnNumber = 0;
     const turnIds: string[] = [];
