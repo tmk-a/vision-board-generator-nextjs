@@ -1,5 +1,5 @@
-import { ChatContent } from "../../../../components/features/chat/ChatContents";
-import { getChatHistory } from "../../../../services/chatService";
+import { ChatContent } from "@/components/features/chat/ChatContents";
+import { getConversationTurns } from "@/services/chatService";
 import { notFound } from "next/navigation";
 
 interface ChatPageProps {
@@ -12,7 +12,7 @@ export default async function ChatPage({ params }: ChatPageProps) {
   const { conversationId } = await params;
 
   if (conversationId !== "new") {
-    const chatData = await getChatHistory(conversationId);
+    const chatData = await getConversationTurns(conversationId);
 
     if (!chatData) {
       notFound();
