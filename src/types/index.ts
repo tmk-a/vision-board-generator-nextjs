@@ -26,3 +26,11 @@ export interface BasicQuestionsData {
   question: string;
   options: string[];
 }
+
+export interface DesignPreferences {
+  colorPalette: string;
+  artStyle: string;
+  mood: string;
+  complexity: string;
+  textInclusion: string;
+}
