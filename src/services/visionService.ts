@@ -1,72 +1,113 @@
 import { generateGeminiContent } from "@/lib/ai/gemini";
 import { prisma } from "@/lib/prisma";
+import { DesignPreferences } from "@/types";
 
 // Prompts that analyze user responses and extract core information for the vision board
-const ANALYSIS_PROMPT_TEMPLATE = `
+const ANALYSIS_PROMPT_TEMPLATE = (answeredQuestions: any[]) => `
 You are an AI designed to analyze user answers for a "Vision Board Generator" that helps users deepen self-understanding.
-Based on the user's answer history, extract the following:
-- Core values (3–5 items)
-- A summary of important traits or things the user values (around 100 characters)
-- A one-word concept representing the user's life axis (max 10 characters)
+
+Based on the user's answer history, extract and output the following information in JSON format:
+
+Required Output Structure:
+{
+  "coreValues": ["value1", "value2", "value3"],  // 3-5 core values
+  "personalitySummary": "string",  // Summary of important traits (max 100 characters)
+  "lifeAxisConcept": "string"  // One-word concept representing user's life axis (max 10 characters)
+}
 
 User Answer History:
-${"${JSON.stringify(answeredQuestions)}"}
+${JSON.stringify(answeredQuestions)}
 
-Please output the result in text format.
-This analysis will be used for generating the vision board.
+Important:
+- Extract values that genuinely reflect the user's responses
+- Keep the personality summary concise and meaningful
+- Choose a life axis concept that captures their central theme
+- Output valid JSON only, with no additional commentary
 `;
 
-// Prompts that create image user responses and extract core information
-// TODO: add design order
+// Prompts that create image generation instructions based on user responses
 const IMAGE_GENERATION_PROMPT = (
   answeredQuestions: any[],
-  analysisResult: any
+  analysisResult: any,
+  designPreferences?: DesignPreferences
 ) => `
-You are an AI that generates images for a "Vision Board Generator" to help users deepen self-understanding.
-Create a vision board image based on the following information:
+Generate a vision board image that helps the user visualize their aspirations and values.
 
-Input:
-- User's answer history:
-${JSON.stringify(answeredQuestions)}
-- Extracted values, life axis, and traits:
-${JSON.stringify(analysisResult)}
+Input Data:
+- User's answer history: ${JSON.stringify(answeredQuestions)}
+- Core values: ${analysisResult.coreValues?.join(", ")}
+- Life axis concept: ${analysisResult.lifeAxisConcept}
+- Personality summary: ${analysisResult.personalitySummary}
 
-Output Requirements:
-- Visual representation symbolizing the user's life axis
-- Keywords or symbols representing the user
-- Scenes evoking a sense of safety and "home"
-- Themes suggesting the user's future path
+Design Specifications:
+${
+  designPreferences
+    ? `
+- Color Palette: ${
+        designPreferences.colorPalette || "warm and harmonious colors"
+      }
+- Art Style: ${designPreferences.artStyle || "modern inspirational collage"}
+- Mood: ${designPreferences.mood || "hopeful and empowering"}
+- Complexity: ${designPreferences.complexity || "balanced composition"}
+- Text on image: ${
+        designPreferences.textInclusion === "yes"
+          ? "Include key words and phrases"
+          : "Visual elements only"
+      }
+`
+    : "- Style: Inspirational vision board with balanced, uplifting aesthetics"
+}
 
-Conditions:
-- Be specific and provide clear visual imagery
-- Focus on colors, lighting, and composition to convey self-acceptance, comfort, and hope for the future
-- Output in image format
+Image Requirements:
+1. Central focus: Visual symbol representing "${analysisResult.lifeAxisConcept}"
+2. Incorporate imagery reflecting these values: ${analysisResult.coreValues?.join(
+  ", "
+)}
+3. Include elements suggesting: comfort, belonging, personal growth, and future possibilities
+4. Composition: Harmonious layout with clear focal points
+5. Lighting: Warm, inviting, optimistic
+6. Overall feeling: Self-acceptance, hope, and forward momentum
+
+Create a cohesive, aesthetically pleasing vision board that the user can use for daily inspiration.
+${
+  designPreferences?.textInclusion === "yes"
+    ? `Include these key phrases naturally in the design: ${analysisResult.coreValues
+        ?.slice(0, 3)
+        .join(", ")}`
+    : ""
+}
+
+Generate the image now.
 `;
 
 export const analyzeAndGenerateVisionBoard = async (
   conversationId: string,
   userId: string,
-  answeredQuestions: any[]
+  answeredQuestions: any[],
+  designPreferences?: DesignPreferences
 ) => {
-  const analysisPrompt = ANALYSIS_PROMPT_TEMPLATE.replace(
-    "${JSON.stringify(answeredQuestions)}",
-    JSON.stringify(answeredQuestions)
-  );
+  const analysisPrompt = ANALYSIS_PROMPT_TEMPLATE(answeredQuestions);
 
   const analysisResultText = await generateGeminiContent(analysisPrompt);
-  const analysisResult = JSON.parse(analysisResultText);
+  const cleanedText = analysisResultText
+    .replace(/```json\n?/g, "")
+    .replace(/```\n?/g, "")
+    .trim();
+
+  const analysisResult = JSON.parse(cleanedText);
 
   // save result in database
   await saveVisionAnalysis(
     conversationId,
     userId,
     analysisResult.coreValues,
-    analysisResult.oneWordConcept
+    analysisResult.lifeAxisConcept
   );
 
   const imagePrompt = IMAGE_GENERATION_PROMPT(
     answeredQuestions,
-    analysisResult
+    analysisResult,
+    designPreferences
   );
 
   // TODO: generate image
