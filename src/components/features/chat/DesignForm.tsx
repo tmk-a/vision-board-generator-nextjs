@@ -90,7 +90,7 @@ export const DesignForm = ({
   return (
     <form onSubmit={handleSubmit}>
       <DialogHeader>
-        <DialogTitle>Let's Decide Design</DialogTitle>
+        <DialogTitle>Decide Your Design</DialogTitle>
       </DialogHeader>
 
       <div className="space-y-6 my-4">

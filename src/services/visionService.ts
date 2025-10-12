@@ -1,9 +1,11 @@
 import { generateGeminiContent } from "@/lib/ai/gemini";
 import { prisma } from "@/lib/prisma";
-import { DesignPreferences } from "@/types";
+import { DesignPreferences, ConversationTurnData } from "@/types";
 
 // Prompts that analyze user responses and extract core information for the vision board
-const ANALYSIS_PROMPT_TEMPLATE = (answeredQuestions: any[]) => `
+const ANALYSIS_PROMPT_TEMPLATE = (
+  answeredQuestions: ConversationTurnData[]
+) => `
 You are an AI designed to analyze user answers for a "Vision Board Generator" that helps users deepen self-understanding.
 
 Based on the user's answer history, extract and output the following information in JSON format:
@@ -27,7 +29,8 @@ Important:
 
 // Prompts that create image generation instructions based on user responses
 const IMAGE_GENERATION_PROMPT = (
-  answeredQuestions: any[],
+  answeredQuestions: ConversationTurnData[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   analysisResult: any,
   designPreferences?: DesignPreferences
 ) => `
@@ -83,7 +86,7 @@ Generate the image now.
 export const analyzeAndGenerateVisionBoard = async (
   conversationId: string,
   userId: string,
-  answeredQuestions: any[],
+  answeredQuestions: ConversationTurnData[],
   designPreferences?: DesignPreferences
 ) => {
   const analysisPrompt = ANALYSIS_PROMPT_TEMPLATE(answeredQuestions);

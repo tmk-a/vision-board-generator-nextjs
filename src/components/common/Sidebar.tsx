@@ -2,7 +2,7 @@ import { ConversationData } from "../../types/index";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
+  // SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarGroupLabel,
