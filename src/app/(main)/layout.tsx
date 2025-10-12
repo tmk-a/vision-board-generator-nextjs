@@ -1,21 +1,25 @@
-import Header from "../common/Header";
-import { getUserConversations } from "../../app/(main)/chat/action";
-import AppSidebar from "../common/Sidebar";
-import { ConversationData } from "../../types/index";
-import { getAuthenticatedUser } from "../../app/(auth)/action";
+import Header from "@/components/common/Header";
+import AppSidebar from "@/components/common/Sidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { getAuthenticatedUser } from "../(auth)/action";
+import { ConversationData } from "../../types/index";
+import { getUserConversations } from "../../app/(main)/chat/action";
 
-export default async function LoggedInLayout({
+export default async function MainLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
-  let conversationList: ConversationData[] = [];
+}) {
   const user = await getAuthenticatedUser();
+  const isAuthenticated = !!user;
 
-  if (user) {
-    conversationList = await getUserConversations();
+  let conversationList: ConversationData[] = [];
+  if (isAuthenticated) {
+    if (user) {
+      conversationList = await getUserConversations();
+    }
   }
+
   return (
     <>
       <div className="flex flex-col min-h-screen">
