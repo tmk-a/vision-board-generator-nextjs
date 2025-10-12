@@ -97,7 +97,7 @@ export const analyzeAndGenerateVisionBoard = async (
   const analysisResult = JSON.parse(cleanedText);
 
   // save result in database
-  await saveVisionAnalysis(
+  const generated = await saveVisionAnalysis(
     conversationId,
     userId,
     analysisResult.coreValues,
@@ -110,13 +110,14 @@ export const analyzeAndGenerateVisionBoard = async (
     designPreferences
   );
 
-  // TODO: generate image
-  // const generatedImage = await callImageGenerationAPI(imagePrompt);
+  const generatedImage = await generateImageWithPollinations(imagePrompt);
+
+  await updateVisionImage(generated.id, generatedImage);
 
   return {
     coreValues: analysisResult.coreValues,
     oneWordConcept: analysisResult.oneWordConcept,
-    imagePrompt: imagePrompt,
+    generatedImage,
   };
 };
 
@@ -126,7 +127,7 @@ async function saveVisionAnalysis(
   coreValues: string[],
   oneWordConcept: string
 ) {
-  await prisma.generatedVisions.create({
+  const result = await prisma.generatedVisions.create({
     data: {
       conversation_id: conversationId,
       user_id: userId,
@@ -134,5 +135,52 @@ async function saveVisionAnalysis(
       generated_text: coreValues.join(","),
       created_at: new Date(),
     },
+    select: {
+      id: true,
+      theme_word: true,
+      created_at: true,
+    },
+  });
+
+  return result;
+}
+
+export async function getUserVisions(userId: string, limit?: number) {
+  return await prisma.generatedVisions.findMany({
+    where: { user_id: userId },
+    orderBy: { created_at: "desc" },
+    ...(limit && { take: limit }),
   });
 }
+
+export async function getVisionByConversation(
+  conversationId: string,
+  userId: string
+) {
+  return await prisma.generatedVisions.findFirst({
+    where: {
+      conversation_id: conversationId,
+      user_id: userId,
+    },
+    orderBy: { created_at: "desc" },
+  });
+}
+
+export const generateImageWithPollinations = async (prompt: string) => {
+  const encodedPrompt = encodeURIComponent(prompt);
+  const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1024&height=1024&nologo=true`;
+
+  return imageUrl;
+};
+
+export const updateVisionImage = async (
+  generatedId: string,
+  imageUrl: string
+) => {
+  await prisma.generatedVisions.update({
+    where: { id: generatedId },
+    data: { generated_image_url: imageUrl },
+  });
+
+  console.log(`📸 Updated image URL for conversation ${generatedId}`);
+};
