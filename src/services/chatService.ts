@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "../generated/prisma";
 import { ConversationInput, BasicQuestionsData } from "@/types";
 import basicQuestions from "@/data/basicQuestions.json";
 
@@ -31,7 +32,7 @@ export const addChatHistory = async (
   conversationId: string | null,
   chatHistory: ConversationInput[]
 ) => {
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     let currentConversationId = conversationId;
     let turnNumber = 0;
     const turnIds: string[] = [];
