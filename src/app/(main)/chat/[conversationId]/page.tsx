@@ -22,12 +22,12 @@ export default async function ChatPage({ params }: ChatPageProps) {
 
     return (
       <ChatContent
-        conversationId={conversationId}
+        initialConversationId={conversationId}
         initialHistory={chatData}
         initialQuestionNo={nextQuestionNo}
       />
     );
   }
 
-  return <ChatContent conversationId={conversationId} />;
+  return <ChatContent initialConversationId={conversationId} />;
 }

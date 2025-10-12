@@ -17,7 +17,7 @@ import { BasicQuestionsData, DesignPreferences } from "@/types";
 import { DesignForm } from "./DesignForm";
 
 interface ChatWindowProps {
-  questionNo: number;
+  questionNoForDisplay: number;
   question: BasicQuestionsData;
   answer: string;
   setAnswer: (value: string) => void;
@@ -33,11 +33,10 @@ const OTHER_OPTION_VALUE = "Other (please describe)";
 const LENGTH_BASIC_QUESTION = 7;
 
 export const ChatWindow = ({
-  questionNo,
+  questionNoForDisplay,
   question,
   answer,
   setAnswer,
-  isSaved,
   setIsSaved,
   loading,
   handleNextQuestion,
@@ -49,8 +48,15 @@ export const ChatWindow = ({
   const [radioValue, setRadioValue] = useState("");
   const isOtherSelected = radioValue === OTHER_OPTION_VALUE;
 
+  enum Mode {
+    design = "design",
+    basicQuestion = "basic",
+    advancedQuestion = "advanced",
+  }
+  const [mode, setMode] = useState<Mode>(Mode.basicQuestion);
+
   useEffect(() => {
-    if (isOpen && questionNo < LENGTH_BASIC_QUESTION) {
+    if (isOpen && questionNoForDisplay <= LENGTH_BASIC_QUESTION) {
       const initialRadioValue = question.options.includes(answer)
         ? answer
         : question.options.includes(OTHER_OPTION_VALUE)
@@ -79,7 +85,7 @@ export const ChatWindow = ({
   };
 
   const handleMoveToDesign = () => {
-    setIsSaved(true);
+    setMode(Mode.design);
   };
 
   return (
@@ -94,22 +100,23 @@ export const ChatWindow = ({
         <Button className="text-lg px-3">Answer Next Question</Button>
       </DialogTrigger>
       <DialogContent>
-        {questionNo === LENGTH_BASIC_QUESTION && !isSaved && (
-          <div>
-            <DialogHeader>
-              <DialogTitle>Completed to answer basic questions!</DialogTitle>
-            </DialogHeader>
-            <DialogFooter className="flex flex-col">
-              <Button onClick={handleMoveToDesign}>Decide Design</Button>
-              <Button disabled>Answer More Questions</Button>
-            </DialogFooter>
-          </div>
-        )}
-        {questionNo < LENGTH_BASIC_QUESTION && (
+        {questionNoForDisplay === LENGTH_BASIC_QUESTION + 1 &&
+          mode === Mode.basicQuestion && (
+            <div>
+              <DialogHeader>
+                <DialogTitle>Completed to answer basic questions!</DialogTitle>
+              </DialogHeader>
+              <DialogFooter className="flex flex-col">
+                <Button onClick={handleMoveToDesign}>Decide Design</Button>
+                <Button disabled>Answer More Questions</Button>
+              </DialogFooter>
+            </div>
+          )}
+        {questionNoForDisplay <= LENGTH_BASIC_QUESTION && (
           <form>
             <DialogHeader>
               <p>
-                {questionNo + 1}/{LENGTH_BASIC_QUESTION}
+                {questionNoForDisplay}/{LENGTH_BASIC_QUESTION}
               </p>
               <DialogTitle>{question.question}</DialogTitle>
             </DialogHeader>
@@ -144,11 +151,11 @@ export const ChatWindow = ({
               <Button
                 type="button"
                 onClick={handleBackQuestion}
-                disabled={questionNo === 0}
+                disabled={questionNoForDisplay === 1}
               >
                 Back
               </Button>
-              {questionNo > LENGTH_BASIC_QUESTION ? (
+              {questionNoForDisplay > LENGTH_BASIC_QUESTION ? (
                 <Button type="button" onClick={() => setIsSaved(true)}></Button>
               ) : null}
               <Button type="button" onClick={handleNextQuestion}>
@@ -157,10 +164,11 @@ export const ChatWindow = ({
             </DialogFooter>
           </form>
         )}
-        {isSaved && (
+        {mode === Mode.design && (
           <DesignForm
             handleGenerateVision={handleGenerateVision}
             loading={loading}
+            setIsSaved={setIsSaved}
           />
         )}
       </DialogContent>

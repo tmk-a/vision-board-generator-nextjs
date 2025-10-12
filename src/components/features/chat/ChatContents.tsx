@@ -14,7 +14,7 @@ import { getBasicQuestions } from "@/services/chatService";
 import { generateVision } from "@/app/(main)/vision/action";
 
 interface ChatContentProps {
-  conversationId: string;
+  initialConversationId: string;
   initialHistory?: ConversationTurnData[];
   initialQuestionNo?: number;
 }
@@ -22,7 +22,7 @@ interface ChatContentProps {
 const LENGTH_BASIC_QUESTION = 7;
 
 export const ChatContent = ({
-  conversationId,
+  initialConversationId,
   initialHistory = [],
   initialQuestionNo = 0,
 }: ChatContentProps) => {
@@ -35,37 +35,50 @@ export const ChatContent = ({
   const [loading, setLoading] = useState(false);
 
   const [isSaved, setIsSaved] = useState(false);
+  const [conversationId, setConversationId] = useState(initialConversationId);
 
   const basicQuestions = getBasicQuestions();
   const currentQuestionInfo = basicQuestions[questionNo];
 
-  const addAnswerToConversationInputs = () => {
-    setConversationInputs([
-      ...conversationInputs,
-      { questionNo, question: currentQuestionInfo.question, answer },
-    ]);
-
-    setAnswer("");
-  };
-
   const handleBackQuestion = (e: React.FormEvent) => {
     e.preventDefault();
-    setConversationInputs(conversationInputs.slice(0, -1));
+    if (questionNo === 0) return;
+
+    const updatedInputs = conversationInputs.slice(0, -1);
+    setConversationInputs(updatedInputs);
 
     const prevQuestionNo = questionNo - 1;
     setQuestionNo(prevQuestionNo);
 
-    setAnswer(conversationInputs[prevQuestionNo].answer);
+    if (updatedInputs.length > 0) {
+      const prevAnswer = updatedInputs[updatedInputs.length - 1]?.answer || "";
+      setAnswer(prevAnswer);
+    } else {
+      setAnswer("");
+    }
   };
 
   const handleNextQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    addAnswerToConversationInputs();
+
+    const newInput: ConversationInput = {
+      questionNo: questionNo + 1,
+      question: currentQuestionInfo.question,
+      answer,
+    };
+
+    const updatedInputs = [...conversationInputs, newInput];
+    setConversationInputs(updatedInputs);
+    setAnswer("");
 
     if (questionNo === LENGTH_BASIC_QUESTION - 1) {
       setLoading(true);
       try {
-        await submitChat(conversationInputs, conversationId);
+        const result = await submitChat(updatedInputs, conversationId);
+
+        if (result.conversationId && result.conversationId !== conversationId) {
+          setConversationId(result.conversationId);
+        }
         setIsSaved(true);
       } catch (error) {
         console.error("Failed to save answers:", error);
@@ -73,7 +86,6 @@ export const ChatContent = ({
         setLoading(false);
       }
     }
-
     setQuestionNo((prev) => prev + 1);
   };
 
@@ -102,7 +114,7 @@ export const ChatContent = ({
     <div className="p-5">
       <h1>Give us your answer</h1>
       <ChatWindow
-        questionNo={questionNo}
+        questionNoForDisplay={questionNo + 1}
         question={currentQuestionInfo}
         answer={answer}
         setAnswer={setAnswer}

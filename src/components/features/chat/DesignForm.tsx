@@ -13,6 +13,7 @@ import { useState } from "react";
 interface DesignFormProps {
   handleGenerateVision: (preferences: DesignPreferences) => void;
   loading: boolean;
+  setIsSaved: (value: boolean) => void;
 }
 
 interface DesignPreferences {
@@ -61,6 +62,7 @@ const formItems = [
 export const DesignForm = ({
   handleGenerateVision,
   loading,
+  setIsSaved,
 }: DesignFormProps) => {
   const [designPreferences, setDesignPreferences] = useState<DesignPreferences>(
     {
@@ -82,6 +84,7 @@ export const DesignForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     handleGenerateVision(designPreferences);
+    setIsSaved(false);
   };
 
   return (
