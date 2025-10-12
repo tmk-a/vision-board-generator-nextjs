@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import PublicLayout from "@/components/layout/PublicLayout";
-import LoggedInLayout from "@/components/layout/LoggedInLayout";
-import { getAuthenticatedUser } from "./(auth)/action";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,29 +22,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // confirm user login status
-  const user = await getAuthenticatedUser();
-  const isAuthenticated = !!user;
-
-  if (isAuthenticated) {
-    return (
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <LoggedInLayout>{children}</LoggedInLayout>
-        </body>
-      </html>
-    );
-  } else {
-    return (
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          <PublicLayout>{children}</PublicLayout>
-        </body>
-      </html>
-    );
-  }
+  return (
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
+        <div className="flex flex-col bg-stone-50 min-h-screen">{children}</div>
+      </body>
+    </html>
+  );
 }
