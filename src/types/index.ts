@@ -34,3 +34,13 @@ export interface DesignPreferences {
   complexity: string;
   textInclusion: string;
 }
+
+export interface GeneratedItemsData {
+  id: string;
+  user_id: string;
+  conversation_id: string;
+  generated_image_url: string | null;
+  generated_text: string | null;
+  theme_word: string | null;
+  created_at: Date;
+}
