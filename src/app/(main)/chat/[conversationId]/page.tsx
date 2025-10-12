@@ -3,9 +3,9 @@ import { getConversationTurns } from "@/services/chatService";
 import { notFound } from "next/navigation";
 
 interface ChatPageProps {
-  params: {
+  params: Promise<{
     conversationId: string;
-  };
+  }>;
 }
 
 export default async function ChatPage({ params }: ChatPageProps) {
