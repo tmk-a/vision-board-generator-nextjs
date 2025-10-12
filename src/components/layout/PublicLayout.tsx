@@ -5,7 +5,7 @@ export default async function PublicLayout({
 }>) {
   return (
     <>
-      <div className="flex bg-stone-50 min-h-screen p-4">{children}</div>
+      <div className="flex flex-col bg-stone-50 min-h-screen">{children}</div>
     </>
   );
 }

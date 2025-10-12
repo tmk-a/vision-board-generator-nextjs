@@ -1,9 +1,7 @@
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { logout } from "@/app/(auth)/action";
 
 interface HeaderProps {
-  sidebarTrigger: React.ReactNode;
+  sidebarTrigger?: React.ReactNode;
 }
 
 const Header: React.FC<HeaderProps> = async ({ sidebarTrigger }) => {
