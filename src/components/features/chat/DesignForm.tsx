@@ -93,7 +93,7 @@ export const DesignForm = ({
         <DialogTitle>Decide Your Design</DialogTitle>
       </DialogHeader>
 
-      <div className="space-y-6 my-4">
+      <div className="space-y-6 my-4 max-h-[60vh] overflow-y-auto pr-2">
         {formItems.map((item) => (
           <div key={item.key} className="space-y-3">
             <h3 className="font-medium text-sm">{item.title}</h3>

@@ -4,6 +4,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getAuthenticatedUser } from "../(auth)/action";
 import { ConversationData } from "../../types/index";
 import { getUserConversations } from "../../app/(main)/chat/action";
+import { redirect } from "next/navigation";
 
 export default async function MainLayout({
   children,
@@ -11,14 +12,12 @@ export default async function MainLayout({
   children: React.ReactNode;
 }) {
   const user = await getAuthenticatedUser();
-  const isAuthenticated = !!user;
 
-  let conversationList: ConversationData[] = [];
-  if (isAuthenticated) {
-    if (user) {
-      conversationList = await getUserConversations();
-    }
+  if (!user) {
+    redirect("/login?redirectTo=/dashboard");
   }
+
+  const conversationList: ConversationData[] = await getUserConversations();
 
   return (
     <>
