@@ -30,9 +30,7 @@ const AppSidebar = ({ conversations }: AppSidebarProps) => {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <Link href={"/chat"}>Chat List</Link>
-          </SidebarGroupLabel>
+          <SidebarGroupLabel>Chat List</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuButton asChild>
