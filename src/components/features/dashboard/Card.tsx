@@ -3,15 +3,13 @@
 import { GeneratedItemsData } from "@/types/index";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
-import { formatDate, convertDateToLocal } from "@/services/date";
 
 interface CardProps {
   data: GeneratedItemsData;
+  imageUrl: string | undefined;
+  editDate: string;
 }
-export default function Card({ data }: CardProps) {
-  const imageUrl = data.generated_image_url || "";
-  const editDate = formatDate(convertDateToLocal(data.created_at));
-
+export default function Card({ data, imageUrl, editDate }: CardProps) {
   return (
     <Link
       href={`/vision/${data.id}`}
