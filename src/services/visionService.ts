@@ -185,5 +185,11 @@ export const updateVisionImage = async (
     data: { generated_image_url: imageUrl },
   });
 
-  console.log(`📸 Updated image URL for conversation ${generatedId}`);
+  console.log(`Updated image URL for conversation ${generatedId}`);
 };
+
+export async function getVisionById(id: string) {
+  return await prisma.generatedVisions.findUnique({
+    where: { id: id },
+  });
+}
