@@ -104,7 +104,7 @@ export const ChatWindow = ({
       <DialogContent>
         {questionNoForDisplay === LENGTH_BASIC_QUESTION + 1 &&
           mode === Mode.basicQuestion && (
-            <div>
+            <div className="flex flex-col gap-3">
               <DialogHeader>
                 <DialogTitle>Completed to answer basic questions!</DialogTitle>
               </DialogHeader>
@@ -115,7 +115,7 @@ export const ChatWindow = ({
             </div>
           )}
         {questionNoForDisplay <= LENGTH_BASIC_QUESTION && (
-          <form>
+          <form className="flex flex-col gap-3">
             <DialogHeader>
               <p>
                 {questionNoForDisplay}/{LENGTH_BASIC_QUESTION}
