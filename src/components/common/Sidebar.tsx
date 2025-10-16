@@ -28,7 +28,7 @@ const AppSidebar = ({ conversations }: AppSidebarProps) => {
           <h1 className="text-xl font-bold">Vision Board Generator</h1>
         </Link>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-4">
         <SidebarGroup>
           <SidebarGroupLabel>Chat List</SidebarGroupLabel>
           <SidebarGroupContent>

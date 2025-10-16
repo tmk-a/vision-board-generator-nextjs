@@ -57,7 +57,9 @@ export const ChatWindow = ({
 
   useEffect(() => {
     if (isOpen && questionNoForDisplay <= LENGTH_BASIC_QUESTION) {
-      const initialRadioValue = question.options.includes(answer)
+      const initialRadioValue = !answer
+        ? question.options[0]
+        : question.options.includes(answer)
         ? answer
         : question.options.includes(OTHER_OPTION_VALUE)
         ? OTHER_OPTION_VALUE
@@ -102,7 +104,7 @@ export const ChatWindow = ({
       <DialogContent>
         {questionNoForDisplay === LENGTH_BASIC_QUESTION + 1 &&
           mode === Mode.basicQuestion && (
-            <div>
+            <div className="flex flex-col gap-3">
               <DialogHeader>
                 <DialogTitle>Completed to answer basic questions!</DialogTitle>
               </DialogHeader>
@@ -113,7 +115,7 @@ export const ChatWindow = ({
             </div>
           )}
         {questionNoForDisplay <= LENGTH_BASIC_QUESTION && (
-          <form>
+          <form className="flex flex-col gap-3">
             <DialogHeader>
               <p>
                 {questionNoForDisplay}/{LENGTH_BASIC_QUESTION}

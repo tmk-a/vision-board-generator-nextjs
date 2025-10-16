@@ -1,37 +1,30 @@
 import { getUserVisions } from "@/services/visionService";
-import { getAuthenticatedUser } from "../../(auth)/action";
-import { Image } from "lucide-react";
+import { getRequiredUserId } from "../../(auth)/action";
 import { GeneratedItemsData } from "@/types/index";
-export default async function Dashboard() {
-  const user = await getAuthenticatedUser();
+import Card from "@/components/features/dashboard/Card";
+import { formatDate, convertDateToLocal } from "@/services/date";
 
-  let generatedItems: GeneratedItemsData[] = [];
-  if (user) {
-    generatedItems = await getUserVisions(user.id);
-  }
+export default async function Dashboard() {
+  const userId = await getRequiredUserId();
+  const generatedItems: GeneratedItemsData[] = await getUserVisions(userId);
+
   return (
     <section className="space-y-4">
       <h1>Generated History</h1>
-      {generatedItems.map((item) => {
-        const imageUrl = item.generated_image_url || "";
-
-        return (
-          <div key={item.id} className="h-1/5 w-1/3 flex flex-col gap-4">
-            <p>{item.generated_text}</p>
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt="vision board image"
-                width={400}
-                height={400}
-                className="object-cover"
+      {generatedItems.length === 0
+        ? null
+        : generatedItems.map((item) => {
+            const imageUrl = item.generated_image_url || undefined;
+            const editDate = formatDate(convertDateToLocal(item.created_at));
+            return (
+              <Card
+                key={item.id}
+                data={item}
+                imageUrl={imageUrl}
+                editDate={editDate}
               />
-            ) : (
-              <Image />
-            )}
-          </div>
-        );
-      })}
+            );
+          })}
     </section>
   );
 }
