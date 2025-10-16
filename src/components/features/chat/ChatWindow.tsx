@@ -57,7 +57,9 @@ export const ChatWindow = ({
 
   useEffect(() => {
     if (isOpen && questionNoForDisplay <= LENGTH_BASIC_QUESTION) {
-      const initialRadioValue = question.options.includes(answer)
+      const initialRadioValue = !answer
+        ? question.options[0]
+        : question.options.includes(answer)
         ? answer
         : question.options.includes(OTHER_OPTION_VALUE)
         ? OTHER_OPTION_VALUE
