@@ -1,6 +1,7 @@
 import { generateGeminiContent } from "@/lib/ai/gemini";
 import { prisma } from "@/lib/prisma";
 import { DesignPreferences, ConversationTurnData } from "@/types";
+import { updateChatTitle } from "./chatService";
 
 // Prompts that analyze user responses and extract core information for the vision board
 const ANALYSIS_PROMPT_TEMPLATE = (
@@ -107,6 +108,10 @@ export const analyzeAndGenerateVisionBoard = async (
     analysisResult.lifeAxisConcept
   );
 
+  const title = analysisResult.lifeAxisConcept;
+  await updateChatTitle(conversationId, title);
+
+  // generate Image
   const imagePrompt = IMAGE_GENERATION_PROMPT(
     answeredQuestions,
     analysisResult,
