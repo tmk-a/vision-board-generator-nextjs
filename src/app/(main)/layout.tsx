@@ -5,6 +5,7 @@ import { getAuthenticatedUser } from "../(auth)/action";
 import { ConversationData } from "../../types/index";
 import { getUserConversations } from "../../app/(main)/chat/action";
 import { redirect } from "next/navigation";
+import { getUserProfileById } from "@/services/authService";
 
 export default async function MainLayout({
   children,
@@ -18,6 +19,7 @@ export default async function MainLayout({
   }
 
   const conversationList: ConversationData[] = await getUserConversations();
+  const userInfo = await getUserProfileById(user.id);
 
   return (
     <>
@@ -26,7 +28,10 @@ export default async function MainLayout({
           <div className="flex flex-col w-full">
             <Header sidebarTrigger={<SidebarTrigger />} />
             <div className="flex grow">
-              <AppSidebar conversations={conversationList} />
+              <AppSidebar
+                conversations={conversationList}
+                user={{ name: userInfo?.name, imageUrl: "" }}
+              />
               <div className="bg-stone-50 grow p-4">{children}</div>
             </div>
           </div>

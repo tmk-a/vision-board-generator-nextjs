@@ -1,8 +1,9 @@
 "use client";
 
 import { GeneratedItemsData } from "@/types/index";
-import { Calendar } from "lucide-react";
-
+import { Calendar, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatDate, convertDateToLocal } from "@/services/date";
 interface DetailCardProps {
   item: GeneratedItemsData;
   imageUrl: string | undefined;
@@ -17,6 +18,24 @@ export default function DetailCard({
   let words: string[] = [];
   if (item.generated_text) words = item.generated_text.split(",");
 
+  const handleDownload = async (imageUrl: string) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const nowDate = formatDate(convertDateToLocal(new Date()));
+      a.href = url;
+      a.download = `${item.theme_word}_${nowDate}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <img
@@ -29,11 +48,20 @@ export default function DetailCard({
           target.src = `https://placehold.co/800x450/6b7280/ffffff?text=Image+Not+Found`;
         }}
       />
-      <div className="flex content-between">
-        <p className="text-sm text-gray-500 flex items-center mb-3">
-          <Calendar className="w-4 h-4 mr-2 text-indigo-500" />
+      <div className="flex content-center">
+        <p className="text-sm text-gray-500 flex items-center">
+          <Calendar className="w-4 h-4 text-indigo-500" />
           {editDate}
         </p>
+        {imageUrl && (
+          <Button
+            variant={"link"}
+            className="cursor-pointer"
+            onClick={() => handleDownload(imageUrl)}
+          >
+            <Download />
+          </Button>
+        )}
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex gap-2 items-baseline">

@@ -83,3 +83,15 @@ export const addChatHistory = async (
 export const getBasicQuestions = (): BasicQuestionsData[] => {
   return basicQuestions as BasicQuestionsData[];
 };
+
+export const updateChatTitle = async (
+  conversationId: string,
+  title: string
+) => {
+  const result = await prisma.conversations.update({
+    where: { id: conversationId },
+    data: { title },
+  });
+
+  return result;
+};
